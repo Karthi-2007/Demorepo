@@ -91,6 +91,7 @@ export const smartLabAIProject = {
   shortDescription: "A comprehensive laboratory management platform built with React.js, Spring Boot, MySQL, and REST APIs to digitize equipment reservations and automated maintenance reporting.",
   fullDescription: "SmartLab AI solves resource conflicts and equipment downtime in college & industrial laboratories. It provides role-based dashboards for Students, Faculty, and Lab Administrators to schedule equipment usage, log instant hardware faults, track service histories, and analyze lab utilization metrics.",
   techStack: ["React.js", "Spring Boot", "MySQL", "REST API", "Tailwind CSS", "Axios", "Java"],
+  technologies: ["React.js", "Spring Boot", "MySQL", "REST API", "Tailwind CSS", "Axios", "Java"],
   features: [
     "Role-based authentication & authorization",
     "Equipment inventory management",

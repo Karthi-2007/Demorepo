@@ -117,7 +117,7 @@ export default function Certifications() {
 
                 {/* Skills Chips */}
                 <div className="flex flex-wrap gap-1.5 pt-1">
-                  {cert.skills.slice(0, 4).map((skill, sIdx) => (
+                  {(cert.skills || []).slice(0, 4).map((skill, sIdx) => (
                     <span
                       key={sIdx}
                       className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-semibold"
@@ -125,9 +125,9 @@ export default function Certifications() {
                       {skill}
                     </span>
                   ))}
-                  {cert.skills.length > 4 && (
+                  {(cert.skills || []).length > 4 && (
                     <span className="text-[10px] text-slate-400 font-mono self-center">
-                      +{cert.skills.length - 4} more
+                      +{(cert.skills || []).length - 4} more
                     </span>
                   )}
                 </div>
