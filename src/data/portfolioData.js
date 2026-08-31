@@ -1,3 +1,12 @@
+export const getAssetUrl = (path) => {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  
+  const base = import.meta.env.BASE_URL || '/';
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  return base.endsWith('/') ? `${base}${cleanPath}` : `${base}/${cleanPath}`;
+};
+
 export const personalInfo = {
   name: "Karthikeyan S",
   title: "Full Stack Developer · B.Tech IT, 3rd Year",
@@ -6,8 +15,8 @@ export const personalInfo = {
   institution: "Karpagam College of Engineering",
   location: "Coimbatore, Tamil Nadu",
   phone: "+91 9360536215",
-  avatar: "/assets/karthikeyan_profile.jpg",
-  resumePath: "/assets/resume.pdf",
+  avatar: getAssetUrl("/assets/karthikeyan_profile.jpg"),
+  resumePath: getAssetUrl("/assets/resume.pdf"),
   status: "OPEN TO INTERNSHIPS & ENTRY-LEVEL ROLES",
   
   description: "Motivated 3rd-year B.Tech IT student passionate about building scalable web applications using React.js and Spring Boot, with a solid foundation in Data Structures & Algorithms, Java, and C/C++. Actively upskilling in Salesforce as a specialization alongside full-stack development.",
@@ -58,44 +67,30 @@ export const techSkills = [
     category: "Backend",
     items: [
       { name: "Spring Boot", level: "Enterprise Framework" },
-      { name: "REST APIs", level: "Web Services" }
+      { name: "REST APIs", level: "Backend Services" },
+      { name: "Node.js Basics", level: "Runtime" }
     ]
   },
   {
-    category: "Database & Enterprise",
+    category: "Database & Tools",
     items: [
-      { name: "SQL / DBMS", level: "Relational Queries" },
       { name: "MySQL", level: "Relational DB" },
-      { name: "Salesforce*", level: "Upcoming Specialization" }
-    ]
-  },
-  {
-    category: "Tools & Version Control",
-    items: [
       { name: "Git & GitHub", level: "Version Control" },
-      { name: "IntelliJ IDEA", level: "Java IDE" },
-      { name: "VS Code", level: "Code Editor" }
-    ]
-  },
-  {
-    category: "DSA & Core CS",
-    items: [
-      { name: "Arrays & Strings", level: "Core DS" },
-      { name: "HashMap & Hashing", level: "Key-Value DS" },
-      { name: "Linked List & Stack", level: "Linear DS" },
-      { name: "Queue & Searching", level: "Algorithms" },
-      { name: "Sorting & Two Pointer", level: "Patterns" },
-      { name: "Sliding Window", level: "Patterns" },
-      { name: "Graphs & DP", level: "Advanced Algorithms" }
+      { name: "Postman", level: "API Testing" },
+      { name: "VS Code", level: "Primary IDE" }
     ]
   }
 ];
 
-export const smartLabProject = {
-  title: "SmartLab AI",
-  subtitle: "Smart Laboratory Equipment Booking & Predictive Maintenance Platform",
-  description: "A full-stack smart laboratory management platform designed to simplify laboratory equipment booking, usage monitoring, fault reporting, maintenance tracking, and AI-assisted equipment analysis.",
-  technologies: ["React.js", "Spring Boot", "MySQL", "JWT", "REST API", "AI/ML"],
+export const smartLabAIProject = {
+  id: "smartlab-ai",
+  title: "SmartLab AI – Equipment Booking & Fault Management",
+  category: "Full Stack Web Application",
+  badge: "Featured Enterprise Project",
+  status: "Fully Implemented & Documented",
+  shortDescription: "A comprehensive laboratory management platform built with React.js, Spring Boot, MySQL, and REST APIs to digitize equipment reservations and automated maintenance reporting.",
+  fullDescription: "SmartLab AI solves resource conflicts and equipment downtime in college & industrial laboratories. It provides role-based dashboards for Students, Faculty, and Lab Administrators to schedule equipment usage, log instant hardware faults, track service histories, and analyze lab utilization metrics.",
+  techStack: ["React.js", "Spring Boot", "MySQL", "REST API", "Tailwind CSS", "Axios", "Java"],
   features: [
     "Role-based authentication & authorization",
     "Equipment inventory management",
@@ -108,8 +103,10 @@ export const smartLabProject = {
   ],
   githubUrl: "https://github.com/Karthi-2007",
   liveDemoUrl: null,
-  mainImage: "/assets/smartlab_ai_mockup.jpg"
+  mainImage: getAssetUrl("/assets/smartlab_ai_mockup.jpg")
 };
+
+export const smartLabProject = smartLabAIProject;
 
 export const githubProjects = [
   {
@@ -180,7 +177,7 @@ export const certificatesData = [
     credentialId: "83E7H18GUPHD",
     verificationUrl: "https://coursera.org/verify/specialization/83E7H18GUPHD",
     skills: ["Full Stack Development", "React.js", "Advanced React", "JavaScript", "HTML/CSS", "Git", "Databases", "APIs", "Python", "Django"],
-    certificateFile: "/certificates/meta_fullstack_coursera.pdf",
+    certificateFile: getAssetUrl("/certificates/meta_fullstack_coursera.pdf"),
     badge: "Meta Specialization (10 Courses)"
   },
   {
@@ -191,7 +188,7 @@ export const certificatesData = [
     category: "HIGH_VALUE",
     credentialId: "4080779EB7",
     skills: ["Java Programming", "OOP Concepts", "Data Structures", "Algorithms"],
-    certificateFile: "/certificates/iit_bombay_java.pdf",
+    certificateFile: getAssetUrl("/certificates/iit_bombay_java.pdf"),
     badge: "IIT Bombay Online Exam"
   },
   {
@@ -201,7 +198,7 @@ export const certificatesData = [
     date: "August 9, 2025",
     category: "HIGH_VALUE",
     skills: ["MySQL", "Database Modeling", "Relational Databases", "SQL"],
-    certificateFile: "/certificates/coursera_mysql_workbench.pdf",
+    certificateFile: getAssetUrl("/certificates/coursera_mysql_workbench.pdf"),
     badge: "Guided Technical Project"
   },
   {
@@ -212,7 +209,7 @@ export const certificatesData = [
     category: "HIGH_VALUE",
     verificationUrl: "https://www.credly.com/badges/9510a330-db03-4f7f-9099-0a57644a36fc",
     skills: ["NoSQL Database", "MongoDB", "Database Architecture"],
-    certificateFile: "/certificates/mongodb_overview_credly.pdf",
+    certificateFile: getAssetUrl("/certificates/mongodb_overview_credly.pdf"),
     badge: "Verified Credly Badge"
   },
   {
@@ -223,7 +220,7 @@ export const certificatesData = [
     category: "HIGH_VALUE",
     verificationUrl: "https://www.credly.com/badges/d68dbbd0-0b6f-4dab-8b70-6d6778fe0c99",
     skills: ["Python Programming", "Scripting", "Red Hat Enterprise Systems"],
-    certificateFile: "/certificates/redhat_python_credly.pdf",
+    certificateFile: getAssetUrl("/certificates/redhat_python_credly.pdf"),
     badge: "Verified Credly Badge"
   },
   {
@@ -234,7 +231,7 @@ export const certificatesData = [
     category: "HIGH_VALUE",
     verificationUrl: "https://www.credly.com/go/tRyhfwtr",
     skills: ["Process Mining", "AI Foundations", "Business Intelligence"],
-    certificateFile: "/certificates/celonis_ai_credly.pdf",
+    certificateFile: getAssetUrl("/certificates/celonis_ai_credly.pdf"),
     badge: "Verified Credly Badge"
   },
   {
@@ -245,7 +242,7 @@ export const certificatesData = [
     category: "HIGH_VALUE",
     verificationUrl: "https://courses.cognitiveclass.ai/certificates/87a68d0196d24e3097a357f9ac971e29",
     skills: ["Data Analysis", "Python", "Pandas", "NumPy"],
-    certificateFile: "/certificates/ibm_data_analysis.pdf",
+    certificateFile: getAssetUrl("/certificates/ibm_data_analysis.pdf"),
     badge: "IBM Cognitive Class"
   },
   {
@@ -256,7 +253,7 @@ export const certificatesData = [
     category: "HIGH_VALUE",
     verificationUrl: "https://courses.cognitiveclass.ai/certificates/e51dc855674445feae47cd6daa5f066f",
     skills: ["Data Visualization", "Python", "Matplotlib", "Seaborn"],
-    certificateFile: "/certificates/ibm_data_visualization.pdf",
+    certificateFile: getAssetUrl("/certificates/ibm_data_visualization.pdf"),
     badge: "IBM Cognitive Class"
   },
   {
@@ -267,7 +264,7 @@ export const certificatesData = [
     category: "HIGH_VALUE",
     credentialId: "NPTEL25CS103S854301543",
     skills: ["Python", "Algorithmic Thinking", "Problem Solving"],
-    certificateFile: "/certificates/nptel_joy_of_computing_python.pdf",
+    certificateFile: getAssetUrl("/certificates/nptel_joy_of_computing_python.pdf"),
     badge: "12-Week NPTEL Course"
   },
   {
@@ -279,7 +276,7 @@ export const certificatesData = [
     credentialId: "2027616906KS",
     verificationUrl: "https://learn.saylor.org/admin/tool/certificate/index.php?code=2027616906KS",
     skills: ["Networking", "Network Protocols", "TCP/IP", "Computer Systems"],
-    certificateFile: "/certificates/saylor_computer_networks.pdf",
+    certificateFile: getAssetUrl("/certificates/saylor_computer_networks.pdf"),
     badge: "Saylor Academy Certificate"
   },
   {
@@ -290,7 +287,7 @@ export const certificatesData = [
     category: "HIGH_VALUE",
     credentialId: "MDBn4w0poltjk",
     skills: ["MongoDB", "Vector Search", "AI Integration", "NoSQL"],
-    certificateFile: "/certificates/ict_mongodb_ai_vector_search.pdf",
+    certificateFile: getAssetUrl("/certificates/ict_mongodb_ai_vector_search.pdf"),
     badge: "ICT Academy Technical Cert"
   },
   {
@@ -301,7 +298,7 @@ export const certificatesData = [
     category: "HIGH_VALUE",
     verificationUrl: "https://verify.onwingspan.com",
     skills: ["C Programming", "Core Memory Management", "Algorithms"],
-    certificateFile: "/certificates/infosys_c_programming.pdf",
+    certificateFile: getAssetUrl("/certificates/infosys_c_programming.pdf"),
     badge: "Infosys Technical Cert"
   },
   {
@@ -312,7 +309,7 @@ export const certificatesData = [
     category: "HIGH_VALUE",
     verificationUrl: "https://verify.onwingspan.com",
     skills: ["C Pointers", "Memory Allocation", "Data Structures"],
-    certificateFile: "/certificates/infosys_c_pointers.pdf",
+    certificateFile: getAssetUrl("/certificates/infosys_c_pointers.pdf"),
     badge: "Infosys Technical Cert"
   },
   {
@@ -323,7 +320,7 @@ export const certificatesData = [
     category: "HIGH_VALUE",
     verificationUrl: "https://verify.onwingspan.com",
     skills: ["Network Security", "Cybersecurity Protocols", "Encryption"],
-    certificateFile: "/certificates/infosys_network_security.pdf",
+    certificateFile: getAssetUrl("/certificates/infosys_network_security.pdf"),
     badge: "Infosys Technical Cert"
   },
   {
@@ -335,7 +332,7 @@ export const certificatesData = [
     credentialId: "2331614081KS",
     verificationUrl: "https://learn.saylor.org/admin/tool/certificate/index.php?code=2331614081KS",
     skills: ["Artificial Intelligence", "Neural Networks", "Machine Learning"],
-    certificateFile: "/certificates/saylor_ai_building.pdf",
+    certificateFile: getAssetUrl("/certificates/saylor_ai_building.pdf"),
     badge: "Saylor Academy Certificate"
   },
   {
@@ -347,7 +344,7 @@ export const certificatesData = [
     credentialId: "5164742289KS",
     verificationUrl: "https://learn.saylor.org/admin/tool/certificate/index.php?code=5164742289KS",
     skills: ["Python Programming", "Data Structures"],
-    certificateFile: "/certificates/saylor_python_intro.pdf",
+    certificateFile: getAssetUrl("/certificates/saylor_python_intro.pdf"),
     badge: "Saylor Academy Certificate"
   },
 
@@ -360,7 +357,7 @@ export const certificatesData = [
     category: "RELEVANT",
     verificationUrl: "https://learn.microsoft.com/en-us/users/karthikeyans-0895/achievements/print/pgb6svz4?tab=tab-challenges",
     skills: ["Cybersecurity", "Cloud Security", "Information Protection"],
-    certificateFile: "/certificates/ms_learn_cybersecurity.pdf",
+    certificateFile: getAssetUrl("/certificates/ms_learn_cybersecurity.pdf"),
     badge: "Microsoft Learn Achievement"
   },
   {
@@ -371,7 +368,7 @@ export const certificatesData = [
     category: "RELEVANT",
     verificationUrl: "https://verify.onwingspan.com",
     skills: ["Generative AI", "IT Integration", "LLM Fundamentals"],
-    certificateFile: "/certificates/infosys_generative_ai.pdf",
+    certificateFile: getAssetUrl("/certificates/infosys_generative_ai.pdf"),
     badge: "Infosys Springboard"
   },
   {
@@ -382,7 +379,7 @@ export const certificatesData = [
     category: "RELEVANT",
     verificationUrl: "https://learn.microsoft.com/en-us/users/karthikeyans-0895/achievements/print/fqre7gsx?tab=tab-challenges",
     skills: ["Microsoft Copilot", "AI Productivity", "Generative AI Tools"],
-    certificateFile: "/certificates/ms_learn_copilot.pdf",
+    certificateFile: getAssetUrl("/certificates/ms_learn_copilot.pdf"),
     badge: "Microsoft Learn Achievement"
   },
   {
@@ -393,7 +390,7 @@ export const certificatesData = [
     category: "RELEVANT",
     credentialId: "8307566",
     skills: ["HTML", "CSS", "JavaScript", "Web Fundamentals"],
-    certificateFile: "/certificates/simplilearn_web_development.pdf",
+    certificateFile: getAssetUrl("/certificates/simplilearn_web_development.pdf"),
     badge: "Simplilearn Technical Cert"
   },
   {
@@ -405,7 +402,7 @@ export const certificatesData = [
     credentialId: "2519403231KS",
     verificationUrl: "https://learn.saylor.org/admin/tool/certificate/index.php?code=2519403231KS",
     skills: ["R Programming", "Data Analytics"],
-    certificateFile: "/certificates/saylor_r_programming.pdf",
+    certificateFile: getAssetUrl("/certificates/saylor_r_programming.pdf"),
     badge: "Saylor Academy Certificate"
   },
   {
@@ -416,7 +413,7 @@ export const certificatesData = [
     category: "RELEVANT",
     verificationUrl: "https://verify.onwingspan.com",
     skills: ["Data Science", "Analytics", "Statistics"],
-    certificateFile: "/certificates/infosys_data_science.pdf",
+    certificateFile: getAssetUrl("/certificates/infosys_data_science.pdf"),
     badge: "Infosys Springboard"
   }
 ];
