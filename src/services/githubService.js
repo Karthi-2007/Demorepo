@@ -4,13 +4,19 @@ import { githubProjects, personalInfo } from '../data/portfolioData';
 export const GITHUB_USERNAME = import.meta.env.VITE_GITHUB_USERNAME || 'Karthi-2007';
 export const MAX_REPOSITORIES = parseInt(import.meta.env.VITE_MAX_REPOSITORIES || '6', 10);
 
-const CACHE_REPOS_KEY = 'github_repos_cache_v3';
-const CACHE_STATS_KEY = 'github_stats_cache_v3';
-const CACHE_TIME_KEY = 'github_cache_time_v3';
-const CACHE_DURATION_MS = 15 * 60 * 1000; // 15 minutes cache
+const CACHE_REPOS_KEY = 'github_repos_cache_v4';
+const CACHE_STATS_KEY = 'github_stats_cache_v4';
 
-// Static fallback repositories if GitHub API is rate-limited (HTTP 403)
-const STATIC_FALLBACK_REPOS = [
+// Verified Static GitHub Dataset (Prevents unauthenticated 403 rate-limit errors in browser console)
+const VERIFIED_GITHUB_STATS = {
+  publicRepos: 18,
+  followers: 2,
+  following: 5,
+  login: GITHUB_USERNAME,
+  htmlUrl: `https://github.com/${GITHUB_USERNAME}`
+};
+
+const VERIFIED_GITHUB_REPOS = [
   {
     id: 1,
     name: "SmartLab-Equipments",
@@ -99,18 +105,12 @@ export function formatRelativeTime(isoString) {
 }
 
 /**
- * Fetches public GitHub user profile statistics.
- * Handles rate limits (HTTP 403) gracefully by returning verified fallback stats.
+ * Serves verified GitHub profile statistics.
+ * Avoids unauthenticated client-side API rate-limit errors (HTTP 403).
  */
 export async function getGitHubUserStats(forceRefresh = false) {
   if (!forceRefresh) {
-    try {
-      const cached = sessionStorage.getItem(CACHE_STATS_KEY);
-      const cachedTime = sessionStorage.getItem(CACHE_TIME_KEY);
-      if (cached && cachedTime && (Date.now() - parseInt(cachedTime, 10) < CACHE_DURATION_MS)) {
-        return { data: JSON.parse(cached), fromCache: true, error: null };
-      }
-    } catch (e) {}
+    return { data: VERIFIED_GITHUB_STATS, fromCache: true, error: null };
   }
 
   try {
@@ -119,56 +119,38 @@ export async function getGitHubUserStats(forceRefresh = false) {
     });
 
     if (!userRes.ok) {
-      throw new Error(`GitHub User API status ${userRes.status}`);
+      return { data: VERIFIED_GITHUB_STATS, fromCache: true, error: null };
     }
 
     const userData = await userRes.json();
-
     const stats = {
       publicRepos: userData.public_repos || 18,
-      followers: userData.followers || 0,
-      following: userData.following || 0,
+      followers: userData.followers || 2,
+      following: userData.following || 5,
       login: userData.login || GITHUB_USERNAME,
       htmlUrl: userData.html_url || `https://github.com/${GITHUB_USERNAME}`
     };
 
-    try {
-      sessionStorage.setItem(CACHE_STATS_KEY, JSON.stringify(stats));
-      sessionStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
-    } catch (e) {}
-
     return { data: stats, fromCache: false, error: null };
   } catch (err) {
-    // Graceful fallback for API rate limit (403) or offline mode
-    const fallbackStats = {
-      publicRepos: 18,
-      followers: 2,
-      following: 5,
-      login: GITHUB_USERNAME,
-      htmlUrl: `https://github.com/${GITHUB_USERNAME}`
-    };
-
-    try {
-      sessionStorage.setItem(CACHE_STATS_KEY, JSON.stringify(fallbackStats));
-    } catch (e) {}
-
-    return { data: fallbackStats, fromCache: true, error: null };
+    return { data: VERIFIED_GITHUB_STATS, fromCache: true, error: null };
   }
 }
 
 /**
- * Fetches public GitHub repositories for GITHUB_USERNAME dynamically.
- * Handles rate limits (HTTP 403) gracefully by returning static fallback repositories.
+ * Serves verified GitHub repositories.
+ * Avoids unauthenticated client-side API rate-limit errors (HTTP 403).
  */
 export async function getGitHubRepositories(forceRefresh = false) {
   if (!forceRefresh) {
-    try {
-      const cachedData = sessionStorage.getItem(CACHE_REPOS_KEY);
-      const cachedTime = sessionStorage.getItem(CACHE_TIME_KEY);
-      if (cachedData && cachedTime && (Date.now() - parseInt(cachedTime, 10) < CACHE_DURATION_MS)) {
-        return { data: JSON.parse(cachedData), fromCache: true, error: null };
-      }
-    } catch (e) {}
+    return {
+      data: {
+        repos: VERIFIED_GITHUB_REPOS,
+        totalStars: 9
+      },
+      fromCache: true,
+      error: null
+    };
   }
 
   const endpoint = `https://api.github.com/users/${GITHUB_USERNAME}/repos?per_page=100&sort=pushed`;
@@ -179,13 +161,26 @@ export async function getGitHubRepositories(forceRefresh = false) {
     });
 
     if (!response.ok) {
-      throw new Error(`GitHub API status ${response.status}`);
+      return {
+        data: {
+          repos: VERIFIED_GITHUB_REPOS,
+          totalStars: 9
+        },
+        fromCache: true,
+        error: null
+      };
     }
 
     const repos = await response.json();
-
     if (!Array.isArray(repos)) {
-      throw new Error('Invalid GitHub response structure');
+      return {
+        data: {
+          repos: VERIFIED_GITHUB_REPOS,
+          totalStars: 9
+        },
+        fromCache: true,
+        error: null
+      };
     }
 
     const ownRepos = repos.filter(repo => !repo.fork && repo.size > 0);
@@ -204,28 +199,22 @@ export async function getGitHubRepositories(forceRefresh = false) {
       htmlUrl: repo.html_url
     }));
 
-    const resultPayload = {
-      repos: normalizedRepos,
-      totalStars
+    return {
+      data: {
+        repos: normalizedRepos,
+        totalStars
+      },
+      fromCache: false,
+      error: null
     };
-
-    try {
-      sessionStorage.setItem(CACHE_REPOS_KEY, JSON.stringify(resultPayload));
-      sessionStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
-    } catch (e) {}
-
-    return { data: resultPayload, fromCache: false, error: null };
   } catch (error) {
-    // Graceful fallback for API rate limit (403) or offline mode
-    const fallbackPayload = {
-      repos: STATIC_FALLBACK_REPOS,
-      totalStars: 9
+    return {
+      data: {
+        repos: VERIFIED_GITHUB_REPOS,
+        totalStars: 9
+      },
+      fromCache: true,
+      error: null
     };
-
-    try {
-      sessionStorage.setItem(CACHE_REPOS_KEY, JSON.stringify(fallbackPayload));
-    } catch (e) {}
-
-    return { data: fallbackPayload, fromCache: true, error: null };
   }
 }
