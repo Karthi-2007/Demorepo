@@ -20,7 +20,7 @@ export default function Resume() {
             </h2>
 
             <p className="text-sm sm:text-base text-slate-700 font-medium max-w-xl leading-relaxed">
-              Download my official resume detailing my Full Stack & Java background, B.Tech IT coursework at Karpagam College of Engineering, Salesforce specialization, LeetCode problem solving, and certifications.
+              Download my official resume detailing my Full Stack & Java background, B.Tech IT coursework at Karpagam College of Engineering, Full Stack development training, LeetCode problem solving, and certifications.
             </p>
 
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-2 text-xs font-mono text-slate-600 font-semibold">

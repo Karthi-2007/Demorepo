@@ -19,9 +19,9 @@ export const personalInfo = {
   resumePath: getAssetUrl("/assets/resume.pdf"),
   status: "OPEN TO INTERNSHIPS & ENTRY-LEVEL ROLES",
   
-  description: "Motivated 3rd-year B.Tech IT student passionate about building scalable web applications using React.js and Spring Boot, with a solid foundation in Data Structures & Algorithms, Java, and C/C++. Actively upskilling in Salesforce as a specialization alongside full-stack development.",
+  description: "Motivated 3rd-year B.Tech IT student passionate about building scalable web applications using React.js and Spring Boot, with a solid foundation in Data Structures & Algorithms, Java, and C/C++. Currently enrolled in the Full Stack Developer placement batch.",
   
-  aboutShort: "Motivated 3rd-year B.Tech Information Technology student at Karpagam College of Engineering, currently enrolled in the Full Stack Developer placement batch, focusing on React.js, Spring Boot, Java, and Data Structures & Algorithms, with an upcoming specialization in Salesforce.",
+  aboutShort: "Motivated 3rd-year B.Tech Information Technology student at Karpagam College of Engineering, currently enrolled in the Full Stack Developer placement batch, focusing on React.js, Spring Boot, Java, and Data Structures & Algorithms.",
 
   socialLinks: {
     github: "https://github.com/Karthi-2007",
@@ -42,7 +42,7 @@ export const aboutHighlights = [
   { label: "Placement Track", title: "Full Stack Developer", detail: "Full Stack Developer Track" },
   { label: "Backend Stack", title: "Java + Spring Boot", detail: "REST APIs & Database Management" },
   { label: "Frontend Stack", title: "React.js", detail: "Modern Responsive UI Development" },
-  { label: "Specialization", title: "Salesforce", detail: "Upcoming Post End-Sem Specialization" },
+  { label: "Placement Batch", title: "Full Stack Batch", detail: "Full Stack Development Training" },
   { label: "Problem Solving", title: "DSA & Algorithmic OOP", detail: "180+ Verified LeetCode Solved" }
 ];
 
@@ -430,7 +430,7 @@ export const educationList = [
     location: "Coimbatore, Tamil Nadu",
     highlights: [
       "Placement batch: Full Stack Developer track",
-      "Specialization (upcoming): Salesforce"
+      "Current Training: Full Stack Batch"
     ]
   },
   {

@@ -145,7 +145,7 @@ export default function Hero() {
           <span>•</span>
           <span>DSA</span>
           <span>•</span>
-          <span>Salesforce</span>
+          <span>Full Stack</span>
         </div>
 
       </div>
