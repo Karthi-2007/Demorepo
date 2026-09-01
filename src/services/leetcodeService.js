@@ -1,7 +1,7 @@
 export const LEETCODE_USERNAME = import.meta.env.VITE_LEETCODE_USERNAME || 'AfgkZ9Jo50';
 
-const CACHE_KEY = 'leetcode_stats_cache_v5';
-const CACHE_TIME_KEY = 'leetcode_stats_cache_time_v5';
+const CACHE_KEY = 'leetcode_stats_cache_v6';
+const CACHE_TIME_KEY = 'leetcode_stats_cache_time_v6';
 const CACHE_DURATION_MS = 10 * 60 * 1000; // 10 minutes cache
 
 // Verified Profile Baseline from Official LeetCode GraphQL API
