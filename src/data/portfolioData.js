@@ -33,8 +33,8 @@ export const personalInfo = {
 
 export const verifiedStats = [
   { label: "GitHub Repositories", value: "18", sub: "Public Code Projects", url: "https://github.com/Karthi-2007" },
-  { label: "LeetCode Solved", value: "143", sub: "Verified Solved Problems", url: "https://leetcode.com/u/AfgkZ9Jo50/" },
-  { label: "Java Problems", value: "98", sub: "Primary Language Focus", url: "https://leetcode.com/u/AfgkZ9Jo50/" }
+  { label: "LeetCode Solved", value: "180", sub: "Verified Solved Problems", url: "https://leetcode.com/u/AfgkZ9Jo50/" },
+  { label: "Java Problems", value: "118", sub: "Primary Language Focus", url: "https://leetcode.com/u/AfgkZ9Jo50/" }
 ];
 
 export const aboutHighlights = [
@@ -43,7 +43,7 @@ export const aboutHighlights = [
   { label: "Backend Stack", title: "Java + Spring Boot", detail: "REST APIs & Database Management" },
   { label: "Frontend Stack", title: "React.js", detail: "Modern Responsive UI Development" },
   { label: "Specialization", title: "Salesforce", detail: "Upcoming Post End-Sem Specialization" },
-  { label: "Problem Solving", title: "DSA & Algorithmic OOP", detail: "143+ Verified LeetCode Solved" }
+  { label: "Problem Solving", title: "DSA & Algorithmic OOP", detail: "180+ Verified LeetCode Solved" }
 ];
 
 export const techSkills = [
@@ -151,10 +151,10 @@ export const githubProjects = [
 export const leetCodeData = {
   profileUrl: "https://leetcode.com/u/AfgkZ9Jo50/",
   handle: "AfgkZ9Jo50",
-  totalSolved: 143,
+  totalSolved: 180,
   breakdown: [
-    { language: "Java", solved: 98, color: "#F97316" },
-    { language: "C++", solved: 31, color: "#0284C7" },
+    { language: "Java", solved: 118, color: "#F97316" },
+    { language: "C++", solved: 48, color: "#0284C7" },
     { language: "C", solved: 14, color: "#64748B" }
   ],
   topics: [
