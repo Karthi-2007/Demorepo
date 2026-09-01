@@ -32,7 +32,21 @@ export default function DSA() {
   };
 
   useEffect(() => {
+    let isMounted = true;
     fetchStats(false);
+
+    const handleLeetCodeUpdate = (e) => {
+      if (isMounted && e.detail) {
+        setStats(e.detail);
+      }
+    };
+
+    window.addEventListener('leetcode-stats-updated', handleLeetCodeUpdate);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener('leetcode-stats-updated', handleLeetCodeUpdate);
+    };
   }, []);
 
   const handleRefresh = (e) => {
@@ -108,7 +122,7 @@ export default function DSA() {
                   LeetCode Handle: @{username}
                 </span>
                 <h3 className="text-3xl font-extrabold text-textPrimary tracking-tight mt-1">
-                  {currentStats?.totalSolved ?? 143}{' '}
+                  {currentStats?.totalSolved ?? 180}{' '}
                   <span className="text-base font-normal text-textSecondary">Verified Solved Problems</span>
                 </h3>
               </div>
@@ -131,7 +145,7 @@ export default function DSA() {
               <div className="grid grid-cols-3 gap-4">
                 <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-center space-y-1">
                   <span className="text-xs font-mono text-emerald-800 font-bold block uppercase">Easy</span>
-                  <span className="text-2xl font-extrabold text-emerald-900 block">{currentStats?.easySolved ?? 74}</span>
+                  <span className="text-2xl font-extrabold text-emerald-900 block">{currentStats?.easySolved ?? 113}</span>
                 </div>
 
                 <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-center space-y-1">
@@ -141,7 +155,7 @@ export default function DSA() {
 
                 <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-center space-y-1">
                   <span className="text-xs font-mono text-rose-800 font-bold block uppercase">Hard</span>
-                  <span className="text-2xl font-extrabold text-rose-900 block">{currentStats?.hardSolved ?? 11}</span>
+                  <span className="text-2xl font-extrabold text-rose-900 block">{currentStats?.hardSolved ?? 9}</span>
                 </div>
               </div>
             </div>

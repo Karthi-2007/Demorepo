@@ -1,7 +1,7 @@
 export const LEETCODE_USERNAME = import.meta.env.VITE_LEETCODE_USERNAME || 'AfgkZ9Jo50';
 
-const CACHE_KEY = 'leetcode_stats_cache_v6';
-const CACHE_TIME_KEY = 'leetcode_stats_cache_time_v6';
+const CACHE_KEY = 'leetcode_stats_cache_v7';
+const CACHE_TIME_KEY = 'leetcode_stats_cache_time_v7';
 const CACHE_DURATION_MS = 10 * 60 * 1000; // 10 minutes cache
 
 // Verified Profile Baseline from Official LeetCode GraphQL API
@@ -28,9 +28,16 @@ export const VERIFIED_LEETCODE_STATS = {
   ]
 };
 
+function notifyStatsUpdated(data) {
+  if (typeof window !== 'undefined' && data) {
+    window.dispatchEvent(new CustomEvent('leetcode-stats-updated', { detail: data }));
+  }
+}
+
 /**
  * Fetches live LeetCode profile statistics dynamically.
  * Queries official LeetCode GraphQL API primary endpoint, with proxy fallbacks.
+ * Emits global 'leetcode-stats-updated' event to automatically update all UI cards.
  */
 export async function getLeetCodeStats(forceRefresh = false) {
   // 1. Return cached data if available and fresh (unless forceRefresh requested)
@@ -43,6 +50,7 @@ export async function getLeetCodeStats(forceRefresh = false) {
         if (age < CACHE_DURATION_MS) {
           const parsed = JSON.parse(cachedData);
           if (parsed && typeof parsed.totalSolved === 'number' && parsed.totalSolved >= 143) {
+            notifyStatsUpdated(parsed);
             return { data: parsed, fromCache: true, error: null };
           }
         }
@@ -115,6 +123,7 @@ export async function getLeetCodeStats(forceRefresh = false) {
           sessionStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
         } catch (e) {}
 
+        notifyStatsUpdated(normalized);
         return { data: normalized, fromCache: false, error: null };
       }
     }
@@ -180,6 +189,7 @@ export async function getLeetCodeStats(forceRefresh = false) {
         sessionStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
       } catch (e) {}
 
+      notifyStatsUpdated(normalized);
       return { data: normalized, fromCache: false, error: null };
     } catch (proxyErr) {
       // Continue to next proxy
@@ -187,6 +197,7 @@ export async function getLeetCodeStats(forceRefresh = false) {
   }
 
   // 4. Ultimate Fallback: Return verified profile baseline
+  notifyStatsUpdated(VERIFIED_LEETCODE_STATS);
   return {
     data: VERIFIED_LEETCODE_STATS,
     fromCache: true,

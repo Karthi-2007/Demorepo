@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { getGitHubUserStats, getGitHubRepositories, GITHUB_USERNAME } from '../services/githubService';
-import { getLeetCodeStats, LEETCODE_USERNAME } from '../services/leetcodeService';
+import { getLeetCodeStats, LEETCODE_USERNAME, VERIFIED_LEETCODE_STATS } from '../services/leetcodeService';
 import { verifiedStats as fallbackStats } from '../data/portfolioData';
 
 export default function ProofStrip() {
   const [stats, setStats] = useState({
     githubRepos: 18,
     githubStars: 9,
-    leetcodeSolved: 180,
+    leetcodeSolved: VERIFIED_LEETCODE_STATS.totalSolved || 180,
     loading: false,
     error: null
   });
 
   useEffect(() => {
     let isMounted = true;
+
     async function loadStats() {
       try {
         const [ghUser, ghRepos, lcStats] = await Promise.all([
@@ -44,7 +45,23 @@ export default function ProofStrip() {
     }
 
     loadStats();
-    return () => { isMounted = false; };
+
+    // Event Listener for real-time dynamic sync across all components
+    const handleLeetCodeUpdate = (e) => {
+      if (isMounted && e.detail?.totalSolved) {
+        setStats(prev => ({
+          ...prev,
+          leetcodeSolved: e.detail.totalSolved
+        }));
+      }
+    };
+
+    window.addEventListener('leetcode-stats-updated', handleLeetCodeUpdate);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener('leetcode-stats-updated', handleLeetCodeUpdate);
+    };
   }, []);
 
   const displayStats = [
