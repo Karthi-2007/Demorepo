@@ -1,28 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { ExternalLink, RotateCw, AlertCircle } from 'lucide-react';
-import { getLeetCodeStats, LEETCODE_USERNAME } from '../services/leetcodeService';
+import { getLeetCodeStats, LEETCODE_USERNAME, VERIFIED_LEETCODE_STATS } from '../services/leetcodeService';
 import { leetCodeData as fallbackData } from '../data/portfolioData';
 
 export default function DSA() {
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState(VERIFIED_LEETCODE_STATS);
+  const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
   const fetchStats = async (force = false) => {
     if (force) {
+      if (refreshing || loading) return;
       setRefreshing(true);
     } else {
       setLoading(true);
     }
     setError(null);
 
-    const result = await getLeetCodeStats(force);
-
-    if (result.error && !result.data) {
-      setError(result.error || 'Unable to load LeetCode statistics. Please try again later.');
-    } else {
-      setStats(result.data);
+    try {
+      const result = await getLeetCodeStats(force);
+      if (result.data) {
+        setStats(result.data);
+      }
+    } catch (err) {
+      // Keep existing stats on error
     }
 
     setLoading(false);
@@ -35,13 +37,15 @@ export default function DSA() {
 
   const handleRefresh = (e) => {
     e.preventDefault();
-    if (!refreshing) {
+    if (!refreshing && !loading) {
       fetchStats(true);
     }
   };
 
-  const username = stats?.username || LEETCODE_USERNAME;
-  const profileUrl = stats?.profileUrl || `https://leetcode.com/u/${username}/`;
+  const currentStats = stats || VERIFIED_LEETCODE_STATS;
+  const username = currentStats?.username || LEETCODE_USERNAME;
+  const profileUrl = currentStats?.profileUrl || `https://leetcode.com/u/${username}/`;
+  const topicsList = currentStats?.topics || fallbackData?.topics || [];
 
   return (
     <section id="dsa" className="section-padding bg-slate-50 border-b border-slate-200">
@@ -69,9 +73,10 @@ export default function DSA() {
 
           {/* Refresh Button */}
           <button
+            type="button"
             onClick={handleRefresh}
             disabled={loading || refreshing}
-            className="btn-secondary-light text-xs py-2 px-3 self-start sm:self-auto flex items-center gap-1.5 font-mono disabled:opacity-50"
+            className="btn-secondary-light text-xs py-2 px-3 self-start sm:self-auto flex items-center gap-1.5 font-mono disabled:opacity-50 cursor-pointer"
             title="Fetch fresh LeetCode statistics"
           >
             <RotateCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-accentOrange' : ''}`} />
@@ -92,26 +97,6 @@ export default function DSA() {
               </div>
             </div>
           </div>
-        ) : error ? (
-          /* Error State UI */
-          <div className="light-card p-8 bg-white border border-slate-200 text-center space-y-4 max-w-lg mx-auto">
-            <AlertCircle className="w-8 h-8 text-amber-600 mx-auto" />
-            <div>
-              <h3 className="text-base font-bold text-textPrimary">{error}</h3>
-              <p className="text-xs text-textSecondary font-mono mt-1">
-                You can view profile statistics directly on LeetCode.
-              </p>
-            </div>
-            <a
-              href={profileUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary-orange text-xs py-2.5 px-5 inline-flex"
-            >
-              <span>View LeetCode Profile</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          </div>
         ) : (
           /* Live LeetCode Dynamic Stats Showcase */
           <div className="light-card p-6 sm:p-8 bg-white space-y-6 border border-slate-200 shadow-card">
@@ -123,7 +108,7 @@ export default function DSA() {
                   LeetCode Handle: @{username}
                 </span>
                 <h3 className="text-3xl font-extrabold text-textPrimary tracking-tight mt-1">
-                  {stats?.totalSolved ?? 0}{' '}
+                  {currentStats?.totalSolved ?? 143}{' '}
                   <span className="text-base font-normal text-textSecondary">Verified Solved Problems</span>
                 </h3>
               </div>
@@ -139,43 +124,41 @@ export default function DSA() {
             </div>
 
             {/* Easy / Medium / Hard Difficulty Breakdown */}
-            {stats && (
-              <div>
-                <h4 className="text-xs font-mono uppercase tracking-wider text-textSecondary font-bold mb-3">
-                  Difficulty Breakdown:
-                </h4>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-center space-y-1">
-                    <span className="text-xs font-mono text-emerald-800 font-bold block uppercase">Easy</span>
-                    <span className="text-2xl font-extrabold text-emerald-900 block">{stats.easySolved ?? 0}</span>
-                  </div>
+            <div>
+              <h4 className="text-xs font-mono uppercase tracking-wider text-textSecondary font-bold mb-3">
+                Difficulty Breakdown:
+              </h4>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-center space-y-1">
+                  <span className="text-xs font-mono text-emerald-800 font-bold block uppercase">Easy</span>
+                  <span className="text-2xl font-extrabold text-emerald-900 block">{currentStats?.easySolved ?? 74}</span>
+                </div>
 
-                  <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-center space-y-1">
-                    <span className="text-xs font-mono text-amber-800 font-bold block uppercase">Medium</span>
-                    <span className="text-2xl font-extrabold text-amber-900 block">{stats.mediumSolved ?? 0}</span>
-                  </div>
+                <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-center space-y-1">
+                  <span className="text-xs font-mono text-amber-800 font-bold block uppercase">Medium</span>
+                  <span className="text-2xl font-extrabold text-amber-900 block">{currentStats?.mediumSolved ?? 58}</span>
+                </div>
 
-                  <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-center space-y-1">
-                    <span className="text-xs font-mono text-rose-800 font-bold block uppercase">Hard</span>
-                    <span className="text-2xl font-extrabold text-rose-900 block">{stats.hardSolved ?? 0}</span>
-                  </div>
+                <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-center space-y-1">
+                  <span className="text-xs font-mono text-rose-800 font-bold block uppercase">Hard</span>
+                  <span className="text-2xl font-extrabold text-rose-900 block">{currentStats?.hardSolved ?? 11}</span>
                 </div>
               </div>
-            )}
+            </div>
 
             {/* Additional Metrics (Global Ranking & Acceptance Rate) */}
-            {(stats?.ranking || stats?.acceptanceRate) && (
+            {(currentStats?.ranking || currentStats?.acceptanceRate) && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
-                {stats.ranking && (
+                {currentStats.ranking && (
                   <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-mono flex items-center justify-between">
                     <span className="text-textSecondary font-semibold">Global Ranking</span>
-                    <span className="text-textPrimary font-extrabold">#{Number(stats.ranking).toLocaleString()}</span>
+                    <span className="text-textPrimary font-extrabold">#{Number(currentStats.ranking).toLocaleString()}</span>
                   </div>
                 )}
-                {stats.acceptanceRate && (
+                {currentStats.acceptanceRate && (
                   <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-mono flex items-center justify-between">
                     <span className="text-textSecondary font-semibold">Acceptance Rate</span>
-                    <span className="text-textPrimary font-extrabold">{stats.acceptanceRate}%</span>
+                    <span className="text-textPrimary font-extrabold">{currentStats.acceptanceRate}%</span>
                   </div>
                 )}
               </div>
@@ -187,7 +170,7 @@ export default function DSA() {
                 Algorithmic Problem Domains:
               </h4>
               <div className="flex flex-wrap gap-2">
-                {fallbackData.topics.map((topic, idx) => (
+                {topicsList.map((topic, idx) => (
                   <span key={idx} className="tech-tag-light bg-slate-100 text-slate-800 font-semibold px-3 py-1 text-xs">
                     {topic}
                   </span>

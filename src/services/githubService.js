@@ -4,11 +4,12 @@ import { githubProjects, personalInfo } from '../data/portfolioData';
 export const GITHUB_USERNAME = import.meta.env.VITE_GITHUB_USERNAME || 'Karthi-2007';
 export const MAX_REPOSITORIES = parseInt(import.meta.env.VITE_MAX_REPOSITORIES || '6', 10);
 
-const CACHE_REPOS_KEY = 'github_repos_cache_v4';
-const CACHE_STATS_KEY = 'github_stats_cache_v4';
+const CACHE_REPOS_KEY = 'github_repos_cache_v5';
+const CACHE_STATS_KEY = 'github_stats_cache_v5';
+const CACHE_TIME_KEY = 'github_cache_time_v5';
 
-// Verified Static GitHub Dataset (Prevents unauthenticated 403 rate-limit errors in browser console)
-const VERIFIED_GITHUB_STATS = {
+// Verified Fallback Dataset for Karthi-2007
+export const VERIFIED_GITHUB_STATS = {
   publicRepos: 18,
   followers: 2,
   following: 5,
@@ -16,7 +17,7 @@ const VERIFIED_GITHUB_STATS = {
   htmlUrl: `https://github.com/${GITHUB_USERNAME}`
 };
 
-const VERIFIED_GITHUB_REPOS = [
+export const VERIFIED_GITHUB_REPOS = [
   {
     id: 1,
     name: "SmartLab-Equipments",
@@ -86,11 +87,12 @@ const VERIFIED_GITHUB_REPOS = [
 ];
 
 export function formatRelativeTime(isoString) {
-  if (!isoString) return '';
+  if (!isoString) return 'Updated recently';
   const date = new Date(isoString);
   const now = new Date();
   const diffInSeconds = Math.floor((now - date) / 1000);
 
+  if (isNaN(diffInSeconds)) return 'Updated recently';
   if (diffInSeconds < 60) return 'Updated just now';
   const diffInMinutes = Math.floor(diffInSeconds / 60);
   if (diffInMinutes < 60) return `Updated ${diffInMinutes}m ago`;
@@ -105,21 +107,26 @@ export function formatRelativeTime(isoString) {
 }
 
 /**
- * Serves verified GitHub profile statistics.
- * Avoids unauthenticated client-side API rate-limit errors (HTTP 403).
+ * Fetches public GitHub user profile statistics.
+ * On initial load (forceRefresh = false), returns verified stats without network calls.
+ * On manual Refresh (forceRefresh = true), makes a fresh API call with cache-busting.
  */
 export async function getGitHubUserStats(forceRefresh = false) {
   if (!forceRefresh) {
+    try {
+      const cached = sessionStorage.getItem(CACHE_STATS_KEY);
+      if (cached) return { data: JSON.parse(cached), fromCache: true, error: null };
+    } catch (e) {}
     return { data: VERIFIED_GITHUB_STATS, fromCache: true, error: null };
   }
 
   try {
-    const userRes = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}`, {
+    const userRes = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}?t=${Date.now()}`, {
       headers: { 'Accept': 'application/vnd.github.v3+json' }
     });
 
     if (!userRes.ok) {
-      return { data: VERIFIED_GITHUB_STATS, fromCache: true, error: null };
+      return { data: VERIFIED_GITHUB_STATS, fromCache: true, error: `GitHub API returned ${userRes.status}` };
     }
 
     const userData = await userRes.json();
@@ -131,18 +138,30 @@ export async function getGitHubUserStats(forceRefresh = false) {
       htmlUrl: userData.html_url || `https://github.com/${GITHUB_USERNAME}`
     };
 
+    try {
+      sessionStorage.setItem(CACHE_STATS_KEY, JSON.stringify(stats));
+    } catch (e) {}
+
     return { data: stats, fromCache: false, error: null };
   } catch (err) {
-    return { data: VERIFIED_GITHUB_STATS, fromCache: true, error: null };
+    return { data: VERIFIED_GITHUB_STATS, fromCache: true, error: 'Network request failed.' };
   }
 }
 
 /**
- * Serves verified GitHub repositories.
- * Avoids unauthenticated client-side API rate-limit errors (HTTP 403).
+ * Fetches public GitHub repositories for GITHUB_USERNAME.
+ * On initial load (forceRefresh = false), returns verified repositories without network calls.
+ * On manual Refresh (forceRefresh = true), makes a fresh API call with cache-busting.
  */
 export async function getGitHubRepositories(forceRefresh = false) {
   if (!forceRefresh) {
+    try {
+      const cachedData = sessionStorage.getItem(CACHE_REPOS_KEY);
+      if (cachedData) {
+        return { data: JSON.parse(cachedData), fromCache: true, error: null };
+      }
+    } catch (e) {}
+
     return {
       data: {
         repos: VERIFIED_GITHUB_REPOS,
@@ -153,7 +172,7 @@ export async function getGitHubRepositories(forceRefresh = false) {
     };
   }
 
-  const endpoint = `https://api.github.com/users/${GITHUB_USERNAME}/repos?per_page=100&sort=pushed`;
+  const endpoint = `https://api.github.com/users/${GITHUB_USERNAME}/repos?per_page=100&sort=pushed&t=${Date.now()}`;
 
   try {
     const response = await fetch(endpoint, {
@@ -167,7 +186,7 @@ export async function getGitHubRepositories(forceRefresh = false) {
           totalStars: 9
         },
         fromCache: true,
-        error: null
+        error: `GitHub API returned ${response.status}`
       };
     }
 
@@ -179,7 +198,7 @@ export async function getGitHubRepositories(forceRefresh = false) {
           totalStars: 9
         },
         fromCache: true,
-        error: null
+        error: 'Invalid response'
       };
     }
 
@@ -199,11 +218,17 @@ export async function getGitHubRepositories(forceRefresh = false) {
       htmlUrl: repo.html_url
     }));
 
+    const resultPayload = {
+      repos: normalizedRepos.length > 0 ? normalizedRepos : VERIFIED_GITHUB_REPOS,
+      totalStars: totalStars || 9
+    };
+
+    try {
+      sessionStorage.setItem(CACHE_REPOS_KEY, JSON.stringify(resultPayload));
+    } catch (e) {}
+
     return {
-      data: {
-        repos: normalizedRepos,
-        totalStars
-      },
+      data: resultPayload,
       fromCache: false,
       error: null
     };
@@ -214,7 +239,7 @@ export async function getGitHubRepositories(forceRefresh = false) {
         totalStars: 9
       },
       fromCache: true,
-      error: null
+      error: 'Network error during refresh'
     };
   }
 }

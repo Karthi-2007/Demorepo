@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Github, ExternalLink, Star, GitFork, RotateCw, AlertCircle, BookOpen } from 'lucide-react';
-import { getGitHubRepositories, getGitHubUserStats, GITHUB_USERNAME, MAX_REPOSITORIES } from '../services/githubService';
+import { getGitHubRepositories, getGitHubUserStats, GITHUB_USERNAME, MAX_REPOSITORIES, VERIFIED_GITHUB_REPOS, VERIFIED_GITHUB_STATS } from '../services/githubService';
 
 export default function GithubProjects() {
-  const [repos, setRepos] = useState([]);
-  const [userStats, setUserStats] = useState(null);
-  const [totalStars, setTotalStars] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [repos, setRepos] = useState(VERIFIED_GITHUB_REPOS);
+  const [userStats, setUserStats] = useState(VERIFIED_GITHUB_STATS);
+  const [totalStars, setTotalStars] = useState(9);
+  const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
   const fetchGitHubData = async (force = false) => {
     if (force) {
+      if (refreshing || loading) return;
       setRefreshing(true);
     } else {
       setLoading(true);
@@ -24,18 +25,16 @@ export default function GithubProjects() {
         getGitHubUserStats(force)
       ]);
 
-      if (repoRes.error && !repoRes.data) {
-        setError(repoRes.error || 'Unable to load GitHub data. Please try again later.');
-      } else {
-        setRepos(repoRes.data?.repos || []);
-        setTotalStars(repoRes.data?.totalStars || 0);
+      if (repoRes.data?.repos && Array.isArray(repoRes.data.repos)) {
+        setRepos(repoRes.data.repos);
+        setTotalStars(repoRes.data.totalStars || 9);
       }
 
       if (userRes.data) {
         setUserStats(userRes.data);
       }
     } catch (err) {
-      setError('Unable to load GitHub data. Please try again later.');
+      // Keep existing data on error
     }
 
     setLoading(false);
@@ -48,12 +47,12 @@ export default function GithubProjects() {
 
   const handleRefresh = (e) => {
     e.preventDefault();
-    if (!refreshing) {
+    if (!refreshing && !loading) {
       fetchGitHubData(true);
     }
   };
 
-  const displayedRepos = repos.slice(0, MAX_REPOSITORIES);
+  const displayedRepos = (repos || []).slice(0, MAX_REPOSITORIES);
 
   return (
     <section className="section-padding bg-white border-b border-slate-200">
@@ -90,9 +89,10 @@ export default function GithubProjects() {
             )}
 
             <button
+              type="button"
               onClick={handleRefresh}
               disabled={loading || refreshing}
-              className="btn-secondary-light text-xs py-2 px-3 self-start sm:self-auto flex items-center gap-1.5 font-mono disabled:opacity-50"
+              className="btn-secondary-light text-xs py-2 px-3 self-start sm:self-auto flex items-center gap-1.5 font-mono disabled:opacity-50 cursor-pointer"
               title="Fetch fresh GitHub data"
             >
               <RotateCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-accentOrange' : ''}`} />
@@ -122,7 +122,7 @@ export default function GithubProjects() {
               ))}
             </div>
           </div>
-        ) : error ? (
+        ) : error && displayedRepos.length === 0 ? (
           /* Error State */
           <div className="light-card p-8 bg-slate-50 border border-slate-200 text-center space-y-4 max-w-lg mx-auto">
             <AlertCircle className="w-8 h-8 text-amber-600 mx-auto" />
@@ -157,7 +157,7 @@ export default function GithubProjects() {
             </a>
           </div>
         ) : (
-          /* Repositories Grid (Filtered, sorted by pushed_at) */
+          /* Repositories Grid */
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {displayedRepos.map((repo) => (
@@ -204,7 +204,7 @@ export default function GithubProjects() {
                     </div>
 
                     <a
-                      href={repo.htmlUrl}
+                      href={repo.htmlUrl || `https://github.com/${GITHUB_USERNAME}/${repo.name}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn-secondary-light w-full text-xs py-2 justify-center"
